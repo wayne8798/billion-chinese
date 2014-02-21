@@ -1,4 +1,5 @@
 import datetime
+import time
 import boto.mturk.connection
 import boto.mturk.question as mtq
 import boto.mturk.qualification as mtqu
@@ -37,6 +38,19 @@ res = mt.create_hit(
     duration=datetime.timedelta(seconds=15*60),# how fast the task is abandoned if not finished
     )
 
-hit = res[0]
-hit_id = hit.HITId
-print('hit id = %s' % hit_id)
+hit_id = res[0].HITId
+print 'Hit successfully published.'
+
+expire_flag = True
+while(expire_flag):
+    time.sleep(15)
+    print 'Check response..'
+    assignments = mt.get_assignments(hit_id)
+    if len(assignments) > 0:
+        expire_flag = False
+    for assignment in assignments:
+        print "Answers of the worker %s" % assignment.WorkerId
+        for question_form_answer in assignment.answers[0]:
+            print question_form_answer.fields[0]
+
+print 'Successfully collected results.'
