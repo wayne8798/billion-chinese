@@ -1,5 +1,6 @@
 import datetime
 import time
+import sys
 import boto.mturk.connection
 import boto.mturk.question as mtq
 import boto.mturk.qualification as mtqu
@@ -11,9 +12,22 @@ mt = boto.mturk.connection.MTurkConnection(AWS_ACCESS_KEY_ID,
                                            AWS_SECRET_ACCESS_KEY,
                                            host=HOST)
 
+image_url = 'http://i.imgur.com/ZiVaPei.jpg'
+hits_count = 1
+
+try:
+    hits_count = int(sys.argv[1])
+    image_url = sys.argv[2]
+except:
+    print 'Please provide the number of hits and an image url'
+    sys.exit()
+
+text_description = ''' Please use 3 words separated by space to describe
+the impression this picture gives to you.
+'''
+image_link = '<img src="' + image_url + '" alt="target"></img>'
 content = mtq.QuestionContent()
-content.append_field('Text', 'Please tell us your first impression about the picture:')
-image_link = '<img src="http://i.imgur.com/ZiVaPei.jpg" alt="target"></img>'
+content.append_field('Text', text_description)
 content.append(mtq.FormattedContent(image_link))
 
 question = mtq.Question(
@@ -33,14 +47,15 @@ res = mt.create_hit(
     description = 'Tell us your thought about the provided image',
     keywords='image, impression',
     reward=mt.get_price_as_price(0.05),
-    max_assignments=1,
-    approval_delay=datetime.timedelta(seconds=24*60*60),# auto-approve timeout
-    duration=datetime.timedelta(seconds=15*60),# how fast the task is abandoned if not finished
+    max_assignments=hits_count,
+    approval_delay=datetime.timedelta(seconds=24*60*60),
+    duration=datetime.timedelta(seconds=15*60),
     )
 
 hit_id = res[0].HITId
 print 'Hit successfully published.'
 
+word_stats = {}
 expire_flag = True
 while(expire_flag):
     time.sleep(15)
@@ -51,6 +66,10 @@ while(expire_flag):
     for assignment in assignments:
         print "Answers of the worker %s" % assignment.WorkerId
         for question_form_answer in assignment.answers[0]:
-            print question_form_answer.fields[0]
+            for word in question_form_answer.fields[0].split():
+                if word in word_stats.keys():
+                    word_stats[word] +=1
+                else:
+                    word_stats[word] = 0
 
 print 'Successfully collected results.'
