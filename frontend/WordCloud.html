@@ -3,9 +3,14 @@
 <header>
     <title>Design Feedback</title>
     <style>
+      body{
+        background-color: #3fa9f5;
+        padding: 20px;
+      }
       table{
         text-align: center;   
-        margin: 2;     
+        padding:10px;
+
       }
       .info {        
         font-family: "Helvetica Neue";
@@ -18,28 +23,61 @@
       }
 
       #title{
-        font-size: 4em;
+        font-size: 3em;
+        color: white;
+        text-align: left;
+        padding: 20px;
+
+        background-color: rgba(34,92,133,0.7);        
+      }
+      .main{
+        background-color: rgba(255,255,255,0.4);
+        margin: 20px;
+        padding: 10px;
+      }
+
+      .left{
+        background-color: rgba(255,255,255,0.2);
+
+      }
+
+      .right{
+        background-color: rgba(255,255,255,0.8);
+      
       }
 
       img{
         width:90%;
+        margin: 20px;
       }     
+
+      .mainCanvas{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+      }
     </style>
 </header>
 <body>
-  <div>
-    <table>
+  <div align="center">
+    <svg class="mainCanvas" width="1300" height="1000">
+      <g class="cloudCanvas">
+      </g>
+    </svg>
+    <div class="mainCanvas" align="center">
+    <table  >
       <tr>
         <td colspan="2">
-          <div class="info" id="title">Design Feedback</div>
+          <div class="info" id="title">Design Feedback</div>          
         </td>
       </tr>
-      <tr>
-        <td>
+      <tr class="main">
+        <td class="left">
           <img id="design" ></img>
         </td>
-        <td align="center">
-          <svg height="500" width="500">
+        <td align="center" class="right">
+          <svg height="500" width="500">            
             <g class="textCanvas" />
             <!-- <g id="tag" style="pointer-events:none; font-size: 0.6em; font-weight: normal;">
               <path opacity="0.7" fill="#dddddd" d="M40-14.209C40-10.876,37.025-8,33.692-8H6.016L-0.51,0.242L-6.77-8h-27.943
@@ -51,7 +89,7 @@
             <tr>
               <td>Weight:</td>
               <td id="weightValue">
-                123
+                0
               </td>
             </tr>
           </table>
@@ -64,6 +102,7 @@
         </td>
       </tr>
     </table>
+  </div>
   </div>
   
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -85,6 +124,11 @@
       .fontSize(function(d) { return d.size; })
       .on("end", draw)
       .start();
+
+  var cloudCanvas = d3
+        .select(".cloudCanvas");
+  CloudGenerator(400,1300,cloudCanvas);
+
 
   function draw(words) {
     d3.select(".textCanvas")
@@ -197,7 +241,50 @@
               .html(curNum);            
             return false;
         }
-  }
+    }
+
+    function CloudGenerator(height, width, cloudCanvas)
+    {
+      d3.timer(moreCloud);
+      var cloudTimer = 0, startTimer = 500, totalTime = 0;
+      function moreCloud()
+      {
+        cloudTimer --;
+        if(cloudTimer > 0)
+        {       
+          return false;       
+        }
+
+        cloudTimer = startTimer;
+
+
+        newCloud(Math.random() * height, 25000 + Math.random()*10000,1+Math.random()*1);
+        
+        // totalTime ++;
+        // if(totalTime == 5)
+        // {
+        //  return true;
+        // }
+        return false;
+      }
+
+      function newCloud(y,dur,scalex)
+      {
+        var dcloud = "M79.891,17.106C76.548,7.163,67.151,0,56.081,0c-8.61,0-16.206,4.333-20.731,10.936 c-1.909-1.088-4.116-1.713-6.471-1.713c-7.227,0-13.086,5.859-13.086,13.086c0,0.335,0.017,0.665,0.041,0.993 C6.679,26.019,0,34.494,0,44.53c0,12.227,9.912,22.14,22.14,22.14c2.933,0,5.731-0.572,8.293-1.607 c2.873,1.144,6.006,1.773,9.286,1.773c2.865,0,5.617-0.481,8.181-1.364c2.565,0.883,5.317,1.364,8.181,1.364 c3.325,0,6.498-0.648,9.402-1.821c2.904,1.173,6.077,1.821,9.402,1.821C88.756,66.836,100,55.592,100,41.721 C100,29.565,91.363,19.427,79.891,17.106z";
+
+        var cloud = d3.select(".cloudCanvas")
+        .append("path")
+        .attr("fill","white")
+        .attr("opacity",Math.random()*1.0)
+        .attr("d",dcloud)       
+        .attr("transform","translate("+(-100)*scalex+","+y+")scale("+scalex+")")
+        .transition()
+        .ease("linear")
+        .duration(dur)
+        .attr("transform","translate("+width+","+y+")scale("+scalex+")")
+        .remove();
+      }
+    }
 
   
 </script>
