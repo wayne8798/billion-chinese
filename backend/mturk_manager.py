@@ -5,8 +5,6 @@ import boto.mturk.connection
 import boto.mturk.question as mtq
 import boto.mturk.qualification as mtqu
 
-AWS_ACCESS_KEY_ID = 'AKIAIMKMN5ICEWOJFFAA'
-AWS_SECRET_ACCESS_KEY = '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'
 HOST = 'mechanicalturk.sandbox.amazonaws.com'
 mt = boto.mturk.connection.MTurkConnection(AWS_ACCESS_KEY_ID,
                                            AWS_SECRET_ACCESS_KEY,
