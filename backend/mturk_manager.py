@@ -5,20 +5,27 @@ import boto.mturk.connection
 import boto.mturk.question as mtq
 import boto.mturk.qualification as mtqu
 
-HOST = 'mechanicalturk.sandbox.amazonaws.com'
-mt = boto.mturk.connection.MTurkConnection(AWS_ACCESS_KEY_ID,
-                                           AWS_SECRET_ACCESS_KEY,
-                                           host=HOST)
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
+HOST = 'mechanicalturk.amazonaws.com'
+# sandbox host
+#HOST = 'mechanicalturk.sandbox.amazonaws.com'
 
 image_url = 'http://i.imgur.com/ZiVaPei.jpg'
-hits_count = 1
+hits_count = 20
 
 try:
     hits_count = int(sys.argv[1])
     image_url = sys.argv[2]
+    AWS_ACCESS_KEY_ID = sys.argv[3]
+    AWS_SECRET_ACCESS_KEY = sys.argv[4]
 except:
-    print 'Please provide the number of hits and an image url'
+    print 'Please provide the number of hits, image url and AWS credentials'
     sys.exit()
+
+mt = boto.mturk.connection.MTurkConnection(AWS_ACCESS_KEY_ID,
+                                           AWS_SECRET_ACCESS_KEY,
+                                           host=HOST)
 
 text_description = ''' Please use 3 words separated by space to describe
 the impression this picture gives to you.
@@ -47,7 +54,7 @@ res = mt.create_hit(
     reward=mt.get_price_as_price(0.05),
     max_assignments=hits_count,
     approval_delay=datetime.timedelta(seconds=24*60*60),
-    duration=datetime.timedelta(seconds=15*60),
+    duration=datetime.timedelta(seconds=10*60),
     )
 
 hit_id = res[0].HITId
@@ -56,7 +63,7 @@ print 'Hit successfully published.'
 word_stats = {}
 expire_flag = True
 while(expire_flag):
-    time.sleep(15)
+    time.sleep(15*60)
     print 'Check response..'
     assignments = mt.get_assignments(hit_id)
     if len(assignments) > 0:
@@ -68,6 +75,7 @@ while(expire_flag):
                 if word in word_stats.keys():
                     word_stats[word] +=1
                 else:
-                    word_stats[word] = 0
+                    word_stats[word] = 1
 
 print 'Successfully collected results.'
+print word_stats
