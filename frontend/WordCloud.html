@@ -127,7 +127,7 @@
 
   var cloudCanvas = d3
         .select(".cloudCanvas");
-  CloudGenerator(400,1300,cloudCanvas);
+  CloudGenerator(800,1500,cloudCanvas);
 
 
   function draw(words) {
@@ -246,7 +246,7 @@
     function CloudGenerator(height, width, cloudCanvas)
     {
       d3.timer(moreCloud);
-      var cloudTimer = 0, startTimer = 500, totalTime = 0;
+      var cloudTimer = 0, startTimer = 200, totalTime = 0;
       function moreCloud()
       {
         cloudTimer --;
@@ -258,7 +258,7 @@
         cloudTimer = startTimer;
 
 
-        newCloud(Math.random() * height, 25000 + Math.random()*10000,1+Math.random()*1);
+        newCloud(Math.random() * height, 20000 + Math.random()*25000,1+Math.random()*1);
         
         // totalTime ++;
         // if(totalTime == 5)
