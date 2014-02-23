@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<header>
+    <title>Design Feedback</title>
+    <style>
+      table{
+        text-align: center;   
+        margin: 2;     
+      }
+      .info {        
+        font-family: "Helvetica Neue";
+        font-weight: 100;
+      }
+
+      .weight{
+        font-size: 2em;
+        font-weight: 200;
+      }
+
+      #title{
+        font-size: 4em;
+      }
+
+      img{
+        width:90%;
+      }     
+    </style>
+</header>
+<body>
+  <div>
+    <table>
+      <tr>
+        <td colspan="2">
+          <div class="info" id="title">Design Feedback</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <img id="design" ></img>
+        </td>
+        <td align="center">
+          <svg height="500" width="500">
+            <g class="textCanvas" />
+            <!-- <g id="tag" style="pointer-events:none; font-size: 0.6em; font-weight: normal;">
+              <path opacity="0.7" fill="#dddddd" d="M40-14.209C40-10.876,37.025-8,33.692-8H6.016L-0.51,0.242L-6.77-8h-27.943
+  C-38.046-8-41-10.876-41-14.209v-23.64C-41-41.183-38.046-44-34.713-44h68.405C37.025-44,40-41.183,40-37.849V-14.209z" />
+              <text style="font-size:0.8em;" text-anchor="middle" transform="translate(0,-15)">100</text>
+            </g> -->
+          </svg>
+           <table class="info weight">
+            <tr>
+              <td>Weight:</td>
+              <td id="weightValue">
+                123
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td/>
+        <td>
+
+        </td>
+      </tr>
+    </table>
+  </div>
+  
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="d3.layout.cloud.js"></script>
+<script src="data.js"></script>
+<script>
+
+  d3.select("#design")
+  .attr("src",wordDict.imgsrc);
+
+  var fill = d3.scale.category20();
+  d3.layout.cloud().size([500, 500])
+      .words(wordDict.dict.map(function(d) {
+        return {text: d.text, wordweight: d.weight, size: 10 + d.weight * 50 / 20, delay: 2000* Math.random(), xoffest: 250, yoffset: 250};
+      }))
+      .padding(10)
+      .rotate(0)//(function() { return ~~(Math.random() * 2) * 90; })
+      .font("Times")
+      .fontSize(function(d) { return d.size; })
+      .on("end", draw)
+      .start();
+
+  function draw(words) {
+    d3.select(".textCanvas")
+      .selectAll("text")
+        .data(words)
+      .enter().append("text")
+        .style("font-size", function(d) { return d.size + "px"; })
+        .style("font-family", "Helvetica")
+        .style("fill", function(d, i) { return fill(i); })
+        .attr("text-anchor", "middle")
+        .attr("transform", function(d) {
+          return "translate(" + [(d.x + d.xoffest), (d.y + d.yoffset)] + ")rotate(" + d.rotate + ")";
+        })
+        .text(function(d) { return d.text; })
+        .on("mouseover",onMouseEnter)
+        .on("mouseout",onMouseLeave)
+        .on("click",toggleHighlight)     
+        .attr("opacity","0")
+        .transition()
+        .duration(1500)
+        .delay(function(d){return d.delay})                
+        .attr("opacity","1")        
+        
+        var oldNum = 0, curNum = 0, newNum = 0;
+        var previous = null;
+
+        function toggleHighlight(d)
+        {          
+          if(previous != null)
+          {
+            d3.select(previous)
+          .style("z-index","0")
+          .transition()
+          .duration(300)
+          .attr("opacity","1")
+          .style("font-size", function(d) { return d.size + "px"; }) 
+
+          newNum=0;
+          d3.timer(updateNumber);      
+          previous = null;
+          }
+          
+          {
+           d3.select(this)
+          .style("z-index","1")
+          .transition()
+          .duration(300)
+          .style("font-size", function(d) { return (d.size + 10) + "px"; })
+
+          curNum = oldNum = +d3.select("#weightValue")
+          .html();
+          newNum = d.wordweight;
+
+          d3.timer(updateNumber)
+            previous = this;
+          }
+        }
+
+        function onMouseEnter(d)
+        {
+          d3.select(this)
+          .style("z-index","1")
+          .transition()
+          .duration(300)
+          .style("font-size", function(d) { return (d.size + 10) + "px"; })
+
+          curNum = oldNum = +d3.select("#weightValue")
+          .html();
+          newNum = d.wordweight;
+
+          d3.timer(updateNumber)
+          // d3.select("#tag")
+          // .attr("transform", function() {
+          // return "translate(" + [(d.x + d.xoffest), (d.y + d.yoffset - d.size / 2 + 5)] + ")";
+          // });
+
+        }
+
+        function onMouseLeave()
+        {
+          d3.select(this)
+          .style("z-index","0")
+          .transition()
+          .duration(300)
+          .attr("opacity","1")
+          .style("font-size", function(d) { return d.size + "px"; }) 
+
+          newNum=0;
+          d3.timer(updateNumber);                  
+        }
+
+        function updateNumber()
+        {
+            if(curNum == newNum)
+            {
+              return true;
+            }
+            if(curNum < newNum)
+            {
+              curNum += 1;
+            }
+            else
+            {
+              curNum -= 1;
+            }
+            
+
+            
+            d3.select("#weightValue")
+              .html(curNum);            
+            return false;
+        }
+  }
+
+  
+</script>
+
+
