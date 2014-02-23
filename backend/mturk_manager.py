@@ -1,6 +1,8 @@
 import datetime
 import time
 import sys
+import string
+from nltk import PorterStemmer as psmer
 import boto.mturk.connection
 import boto.mturk.question as mtq
 import boto.mturk.qualification as mtqu
@@ -64,20 +66,25 @@ word_stats = {}
 expire_flag = True
 while(expire_flag):
     time.sleep(15*60)
-    print 'Check response..'
+    print 'Check response...'
     hits = get_reviewable_hits()
     for hit in hits:
         if hit.HITId == hit_id:
+            print 'Task finished.'
             expire_flag = False
             assignments = mt.get_assignments(hit_id)
             for assignment in assignments:
                 print "Answers of the worker %s" % assignment.WorkerId
                 for question_form_answer in assignment.answers[0]:
-                    for word in question_form_answer.fields[0].split():                        
-                        if word in word_stats.keys():
-                            word_stats[word] +=1
+                    answer = question_form_answer.fields[0]
+                    for p in string.punctuation:
+                        answer = answer.replace(p, ' ')
+                    for word in answer.lower().split():
+                        stemmed_word = psmer().stem_word(word)
+                        if stemmed_word in word_stats.keys():
+                            word_stats[stemmed_word] += 1
                         else:
-                            word_stats[word] = 1
+                            word_stats[stemmed_word] = 1
 
 print 'Successfully collected results.'
 print word_stats
