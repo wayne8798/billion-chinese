@@ -65,17 +65,19 @@ expire_flag = True
 while(expire_flag):
     time.sleep(15*60)
     print 'Check response..'
-    assignments = mt.get_assignments(hit_id)
-    if len(assignments) > 0:
-        expire_flag = False
-    for assignment in assignments:
-        print "Answers of the worker %s" % assignment.WorkerId
-        for question_form_answer in assignment.answers[0]:
-            for word in question_form_answer.fields[0].split():
-                if word in word_stats.keys():
-                    word_stats[word] +=1
-                else:
-                    word_stats[word] = 1
+    hits = get_reviewable_hits()
+    for hit in hits:
+        if hit.HITId == hit_id:
+            expire_flag = False
+            assignments = mt.get_assignments(hit_id)
+            for assignment in assignments:
+                print "Answers of the worker %s" % assignment.WorkerId
+                for question_form_answer in assignment.answers[0]:
+                    for word in question_form_answer.fields[0].split():                        
+                        if word in word_stats.keys():
+                            word_stats[word] +=1
+                        else:
+                            word_stats[word] = 1
 
 print 'Successfully collected results.'
 print word_stats
