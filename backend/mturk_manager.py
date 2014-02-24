@@ -11,7 +11,7 @@ AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 HOST = 'mechanicalturk.amazonaws.com'
 # sandbox host
-#HOST = 'mechanicalturk.sandbox.amazonaws.com'
+# HOST = 'mechanicalturk.sandbox.amazonaws.com'
 
 image_url = 'http://i.imgur.com/ZiVaPei.jpg'
 hits_count = 20
@@ -64,17 +64,18 @@ print 'Hit successfully published.'
 
 word_stats = {}
 expire_flag = True
+time_count = 0
 while(expire_flag):
-    time.sleep(15*60)
-    print 'Check response...'
-    hits = get_reviewable_hits()
+    time.sleep(60)
+    time_count += 1
+    print str(time_count) + ' mins passed..'
+    hits = mt.get_reviewable_hits(sort_direction='Descending')
     for hit in hits:
         if hit.HITId == hit_id:
             print 'Task finished.'
             expire_flag = False
             assignments = mt.get_assignments(hit_id)
             for assignment in assignments:
-                print "Answers of the worker %s" % assignment.WorkerId
                 for question_form_answer in assignment.answers[0]:
                     answer = question_form_answer.fields[0]
                     for p in string.punctuation:
