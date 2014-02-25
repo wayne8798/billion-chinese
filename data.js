@@ -1,0 +1,1 @@
+var wordDict = {imgsrc: "http://i.imgur.com/0MPBSru.jpg", dict:[{text:"there", weight:1},{text:"hello", weight:1},{text:"panda", weight:1}]};

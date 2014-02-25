@@ -1,6 +1,8 @@
 import datetime
 import time
 import sys
+import os
+import webbrowser
 import string
 from nltk import PorterStemmer as psmer
 import boto.mturk.connection
@@ -9,10 +11,11 @@ import boto.mturk.qualification as mtqu
 
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
-HOST = 'mechanicalturk.amazonaws.com'
+# HOST = 'mechanicalturk.amazonaws.com'
 # sandbox host
-# HOST = 'mechanicalturk.sandbox.amazonaws.com'
+HOST = 'mechanicalturk.sandbox.amazonaws.com'
 
+# default image and number of hits
 image_url = 'http://i.imgur.com/ZiVaPei.jpg'
 hits_count = 20
 
@@ -66,6 +69,7 @@ word_stats = {}
 expire_flag = True
 time_count = 0
 while(expire_flag):
+    # check results every minute
     time.sleep(60)
     time_count += 1
     print str(time_count) + ' mins passed..'
@@ -89,3 +93,17 @@ while(expire_flag):
 
 print 'Successfully collected results.'
 print word_stats
+
+# render the visualization using D3
+f = open('data.js','w')
+f.write( 'var wordDict = {imgsrc: "' + image_url + '", dict:[')
+first = 1;
+for (k,v) in word_stats.items():
+    if first == 1:
+        first = 0
+    else:
+        f.write( ',')
+    f.write( '{text:"'+k+'", weight:'+str(v)+'}')
+f.write( ']};')
+f.close()
+webbrowser.open_new("file://"+os.getcwd() + "/WordCloud.html");
